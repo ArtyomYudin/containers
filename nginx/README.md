@@ -5,8 +5,8 @@
 * Debian bookworm based on bitnami minideb package
 * latest nginx
 * listen ports 8080/tcp, 8443/tcp
-* SITES="" - set site name
-* ENDPOINT="" - set backend if proxy mode 
-* TZ="" set timezone
-* NGINX_SKIP_SAMPLE_CERTS="false" - selfsigneg ssl cert 
-* PROXY="false" - proxy or fastcgi mode
+* SITES="test.com" - set site name
+* ENDPOINT="backend" - set backend if proxy mode (the name can be anything)
+* TZ="Europe/Moscow" set timezone
+* NGINX_SKIP_SAMPLE_CERTS="false" - selfsigneg ssl cert (values false or true)
+* PROXY="false" - proxy or fastcgi mode (values false or true)
