@@ -1,6 +1,18 @@
 # Debian Bookworm
 FROM bitnami/minideb:bookworm
 
+LABEL authors="Artyom Yudin" \
+      org.opencontainers.image.base.name="" \
+      org.opencontainers.image.created="" \
+      org.opencontainers.image.description="NGINX Application packaged by Keeper" \
+      org.opencontainers.image.documentation="https://github.com/ArtyomYudin/containers/tree/main/nginx/README.md" \
+      org.opencontainers.image.licenses="Apache-2.0" \
+      org.opencontainers.image.ref.name="" \
+      org.opencontainers.image.source="https://github.com/ArtyomYudin/containers/tree/main/nginx" \
+      org.opencontainers.image.title="nginx" \
+      org.opencontainers.image.vendor="" \
+      org.opencontainers.image.version=""
+
 ENV SITES="test.ru" \
     ENDPOINT="" \
     TZ="" \
