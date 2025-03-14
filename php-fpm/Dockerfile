@@ -85,7 +85,7 @@ RUN sed -i "s/mbstring.internal_encoding = .*/mbstring.internal_encoding= UTF-8/
 
 
 ENV PATH="/opt/php5/bin:/opt/php5/sbin:$PATH"
-EXPOSE 9000
+EXPOSE 9000/TCP
 WORKDIR /app
 
 
