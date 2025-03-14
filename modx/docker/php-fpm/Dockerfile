@@ -19,14 +19,14 @@ RUN install_packages unzip
 
 RUN curl -o ${TEMP_DIR}/modx.tar.gz -SL https://github.com/modxcms/revolution/archive/v${MODX_VER}-pl.tar.gz
 RUN tar xfvz ${TEMP_DIR}/modx.tar.gz -C ${TEMP_DIR}/modx --strip=1 \
-        revolution-$MODX_VER-pl/connectors \
-        revolution-$MODX_VER-pl/core \
-        revolution-$MODX_VER-pl/manager \
-        revolution-$MODX_VER-pl/setup \
-        revolution-$MODX_VER-pl/_build \
-        revolution-$MODX_VER-pl/index.php \
-        revolution-$MODX_VER-pl/ht.access \
-        revolution-$MODX_VER-pl/composer.json
+        revolution-${MODX_VER}-pl/connectors \
+        revolution-${MODX_VER}-pl/core \
+        revolution-${MODX_VER}-pl/manager \
+        revolution-${MODX_VER}-pl/setup \
+        revolution-${MODX_VER}-pl/_build \
+        revolution-${MODX_VER}-pl/index.php \
+        revolution-${MODX_VER}-pl/ht.access \
+        revolution-${MODX_VER}-pl/composer.json
 
 EXPOSE 9000/TCP
 
