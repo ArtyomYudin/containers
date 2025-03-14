@@ -4,7 +4,7 @@
 
 * Debian bookworm based on bitnami minideb package
 * latest nginx
-* 
+* listen ports 8080/tcp, 8443/tcp
 * SITES="" - set site name
 * ENDPOINT="" - set backend if proxy mode 
 * TZ="" set timezone
