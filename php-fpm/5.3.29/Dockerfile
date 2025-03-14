@@ -1,7 +1,7 @@
 FROM bitnami/minideb:bookworm
 
 LABEL authors="Artyom Yudin" \
-      org.opencontainers.image.base.name="" \
+      org.opencontainers.image.base.name="docker.io/artyomyudin/php-fpm:5.3.29" \
       org.opencontainers.image.created="" \
       org.opencontainers.image.description="Legacy PHP-FPM Application packaged by Keeper" \
       org.opencontainers.image.documentation="https://github.com/ArtyomYudin/containers/tree/main/php-fpm/README.md" \

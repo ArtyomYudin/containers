@@ -2,7 +2,7 @@
 FROM bitnami/minideb:bookworm
 
 LABEL authors="Artyom Yudin" \
-      org.opencontainers.image.base.name="" \
+      org.opencontainers.image.base.name="docker.io/artyomyudin/nginx:1.22.1" \
       org.opencontainers.image.created="" \
       org.opencontainers.image.description="NGINX Application packaged by Keeper" \
       org.opencontainers.image.documentation="https://github.com/ArtyomYudin/containers/tree/main/nginx/README.md" \
