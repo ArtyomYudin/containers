@@ -15,6 +15,8 @@ RUN mkdir /tmp/modx
 
 COPY rootfs-opt /opt/keeper/
 
+RUN install_packages unzip
+
 RUN curl -o ${TEMP_DIR}/modx.tar.gz -SL https://github.com/modxcms/revolution/archive/v${MODX_VER}-pl.tar.gz
 RUN tar xfvz ${TEMP_DIR}/modx.tar.gz -C ${TEMP_DIR}/modx --strip=1 \
         revolution-$MODX_VER-pl/connectors \
