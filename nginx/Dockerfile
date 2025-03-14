@@ -7,14 +7,14 @@ LABEL authors="Artyom Yudin" \
       org.opencontainers.image.description="NGINX Application packaged by Keeper" \
       org.opencontainers.image.documentation="https://github.com/ArtyomYudin/containers/tree/main/nginx/README.md" \
       org.opencontainers.image.licenses="Apache-2.0" \
-      org.opencontainers.image.ref.name="" \
+      org.opencontainers.image.ref.name="1.21.1-debian-12-r0" \
       org.opencontainers.image.source="https://github.com/ArtyomYudin/containers/tree/main/nginx" \
       org.opencontainers.image.title="nginx" \
       org.opencontainers.image.vendor="" \
-      org.opencontainers.image.version=""
+      org.opencontainers.image.version="1.21.1"
 
 ENV SITES="test.ru" \
-    ENDPOINT="" \
+    ENDPOINT="php-fpm" \
     TZ="" \
     NGINX_SKIP_SAMPLE_CERTS="false" \
     PROXY="false"

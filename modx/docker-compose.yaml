@@ -1,0 +1,60 @@
+# docker network create it_dev --subnet 10.4.0.0/24 -o com.docker.network.bridge.name=itd0
+
+# Remark this (network) section !!!
+networks:
+  default:
+    external: true
+    name: it_dev
+
+services:
+  mariadb:
+    container_name: "modx_db"
+    build:
+      context: docker/mariadb
+    volumes:
+      - mariadb_data:/bitnami/mariadb
+    environment:
+      - ALLOW_EMPTY_PASSWORD=no
+    env_file:
+      - docker/mariadb/credentials.env
+    healthcheck:
+      test: [ "CMD", "/opt/bitnami/scripts/mariadb/healthcheck.sh" ]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+
+  nginx:
+    container_name: modx_web
+    build:
+      context: docker/nginx
+    restart: on-failure
+    environment:
+      SITES: "testsite.ru"
+      TZ: "Europe/Moscow"
+      NGINX_SKIP_SAMPLE_CERTS: "false"
+    #volumes:
+    #  - cert:/bitnami/certs
+    volumes:
+      - modx_data:/app
+    depends_on:
+      - php-fpm
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+
+  php-fpm:
+    container_name: modx_fpm
+    build:
+      context: docker/php-fpm
+    env_file:
+      - docker/mariadb/credentials.env
+      - docker/php-fpm/modx-install.env
+    volumes:
+      - modx_data:/app
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+volumes:
+  mariadb_data:
+  modx_data:
