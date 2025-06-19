@@ -2,16 +2,16 @@
 FROM bitnami/minideb:bookworm
 
 LABEL authors="Artyom Yudin" \
-      org.opencontainers.image.base.name="docker.io/artyomyudin/nginx:1.22.1" \
+      org.opencontainers.image.base.name="docker.io/artyomyudin/nginx:1.22.1-9" \
       org.opencontainers.image.created="" \
       org.opencontainers.image.description="NGINX Application packaged by Keeper" \
       org.opencontainers.image.documentation="https://github.com/ArtyomYudin/containers/tree/main/nginx/README.md" \
       org.opencontainers.image.licenses="Apache-2.0" \
-      org.opencontainers.image.ref.name="1.21.1-debian-12-r0" \
+      org.opencontainers.image.ref.name="1.22.1-debian-12-r0" \
       org.opencontainers.image.source="https://github.com/ArtyomYudin/containers/tree/main/nginx" \
       org.opencontainers.image.title="nginx" \
       org.opencontainers.image.vendor="" \
-      org.opencontainers.image.version="1.21.1"
+      org.opencontainers.image.version="1.21.1-9"
 
 ENV SITES="test.ru" \
     ENDPOINT="php-fpm" \
@@ -29,9 +29,9 @@ RUN groupadd --system --gid $GID nginx || true
 RUN useradd --system --gid nginx --no-create-home --home /nonexistent --comment "nginx user" --shell /bin/false --uid $UID nginx || true
 
 # Install packages
-RUN install_packages nginx openssl curl procps gettext
-RUN apt-get update && apt-get upgrade -y && \
-    apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
+RUN install_packages nginx=1.22.1-9+deb12u2 openssl curl procps gettext
+#RUN apt-get update && apt-get upgrade -y && \
+RUN apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 
 RUN mkdir /opt/keeper
@@ -65,8 +65,8 @@ RUN if [ ! -z "${TZ}" ]; then ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime
 #VOLUME /etc/nginx/certs
 #ENV PATH="/opt/bitnami/common/bin:/opt/bitnami/nginx/sbin:$PATH"
 
-EXPOSE 8080/tcp
-EXPOSE 8443/tcp
+EXPOSE 80/tcp
+EXPOSE 443/tcp
 
 WORKDIR /app
 
