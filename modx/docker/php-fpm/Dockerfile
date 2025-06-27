@@ -2,7 +2,7 @@ FROM bitnami/php-fpm:8.4.4-debian-12-r5
 
 LABEL authors="Artyom Yudin"
 
-ENV MODX_VER=3.1.1
+ENV MODX_VER=3.1.2
 ENV TEMP_DIR=/tmp
 ENV SRC_ROOT=/tmp/modx
 ENV HTML_ROOT=/app
