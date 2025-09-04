@@ -15,7 +15,7 @@ LABEL authors="Artyom Yudin" \
 
 ENV SITES="test.ru" \
     ENDPOINT="php-fpm" \
-    TZ="" \
+    TZ="Europe/Moscow" \
     NGINX_SKIP_SAMPLE_CERTS="false" \
     PROXY="false"
 
@@ -32,6 +32,9 @@ RUN useradd --system --gid nginx --no-create-home --home /nonexistent --comment 
 RUN install_packages nginx=1.22.1-9+deb12u2 openssl curl procps gettext
 #RUN apt-get update && apt-get upgrade -y && \
 RUN apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# set timezone
+RUN if [ ! -z "${TZ}" ]; then ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime && echo "${TZ}" > /etc/timezone; fi
 
 
 RUN mkdir /opt/keeper
