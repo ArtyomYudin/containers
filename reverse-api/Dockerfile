@@ -27,6 +27,8 @@ RUN apt-get update && apt-get upgrade -y && \
 
 COPY reverse/run.sh /opt/reverse-api/
 COPY reverse/ReverseApiServer /opt/reverse-api/
+COPY reverse/APIServerGui /opt/reverse-api/
+
 RUN chmod +x /opt/reverse-api/run.sh
 RUN chmod +x /opt/reverse-api/ReverseApiServer
 
