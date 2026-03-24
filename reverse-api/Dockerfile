@@ -1,4 +1,4 @@
-FROM bitnami/minideb:buster
+FROM bitnami/minideb:jessie
 
 #LABEL authors="Artyom Yudin" \
 #      org.opencontainers.image.base.name="docker.io/artyomyudin/php-fpm:5.3.29" \
@@ -18,16 +18,27 @@ SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
 COPY rootfs-apt/sources.list /etc/apt/
 
+RUN printf 'Acquire::Check-Valid-Until "false";\n\
+Acquire::AllowInsecureRepositories "true";\n\
+Acquire::AllowDowngradeToInsecureRepositories "true";\n\
+APT::Get::AllowUnauthenticated "true";\n' \
+> /etc/apt/apt.conf.d/99legacy
+
+
 # Install packages
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install vim libqt4-sql libqt4-network -y && \
-    apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archivesRUN mkdir /opt/reverse-api
+    apt-get install vim libqt4-sql-ibase libqt4-network -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
 #
 #
 
-COPY reverse/run.sh /opt/reverse-api/
+COPY reverse/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+RUN mkdir /opt/reverse-api
+
 COPY reverse/ReverseApiServer /opt/reverse-api/
-RUN chmod +x /opt/reverse-api/run.sh
 RUN chmod +x /opt/reverse-api/ReverseApiServer
 
 
@@ -37,11 +48,11 @@ RUN chmod +x /opt/reverse-api/ReverseApiServer
 #RUN systemctl start myapp.service
 
 
-
+EXPOSE 22564/TCP
 EXPOSE 24532/TCP
 #WORKDIR /app
 
 
-CMD [ "/opt/reverse-api/run.sh" ]
+ENTRYPOINT ["/opt/reverse-api/ReverseApiServer", "-e"]
 
 
