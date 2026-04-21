@@ -32,6 +32,10 @@ RUN apt-get update && apt-get upgrade -y && \
 
 #
 #
+# Создаём пользователя и группу с UID/GID 1001 (совпадает с fsGroup в K8s)
+RUN groupadd -g 1001 appuser && \
+    useradd -u 1001 -g appuser -m -s /bin/bash appuser
+
 
 COPY reverse/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
@@ -39,6 +43,9 @@ RUN chmod +x /entrypoint.sh
 RUN mkdir /opt/reverse-api
 
 COPY reverse/ReverseApiServer /opt/reverse-api/
+
+# Меняем владельца директории приложения на непривилегированного пользователя
+RUN chown -R appuser:appuser /opt/reverse-api
 RUN chmod +x /opt/reverse-api/ReverseApiServer
 
 
@@ -47,6 +54,8 @@ RUN chmod +x /opt/reverse-api/ReverseApiServer
 #RUN systemctl enable reverse-api.service
 #RUN systemctl start myapp.service
 
+# Переключаемся на непривилегированного пользователя
+USER 1001
 
 EXPOSE 22564/TCP
 EXPOSE 24532/TCP
