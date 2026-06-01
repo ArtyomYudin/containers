@@ -53,4 +53,5 @@ exec /usr/local/bin/mtproto-proxy \
   -H ${PORT} \
   -S ${SECRET} \
   --aes-pwd ${CONF_DIR}/proxy-secret ${CONF_DIR}/proxy-multi.conf \
-  -M ${WORKERS}
+  -M ${WORKERS} \
+  -D ${TLS_DOMAIN}
