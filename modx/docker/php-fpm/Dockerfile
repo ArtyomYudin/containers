@@ -51,8 +51,9 @@ RUN cp ${HTML_ROOT}/_build/build.config.sample.php ${HTML_ROOT}/_build/build.con
     rm -rf ${HTML_ROOT}/_build ${TEMP_DIR}/*
 
 # Фиксация прав
-RUN chmod -R 0755 ${HTML_ROOT} && \
-    chown -R daemon:root ${HTML_ROOT}
+#RUN chmod -R 0755 ${HTML_ROOT} && \
+#    chown -R daemon:root ${HTML_ROOT}
+RUN chown -R 1001:1001 ${HTML_ROOT}
 
 # =============================================================================
 # Stage 2: Runtime - Минимальный образ для запуска
@@ -75,6 +76,8 @@ ENV HTML_ROOT=/app \
 
 # Копирование готового приложения из builder
 COPY --from=builder --chown=1001:1001 ${HTML_ROOT} ${HTML_ROOT}
+
+RUN chmod -R 775 ${HTML_ROOT}
 
 # Копирование скриптов из builder (также с правильными правами)
 COPY --from=builder /opt/keeper /opt/keeper/
