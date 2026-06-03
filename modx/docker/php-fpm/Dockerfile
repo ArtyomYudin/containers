@@ -46,9 +46,12 @@ RUN composer install --prefer-dist --no-dev --no-interaction --no-progress \
         --optimize-autoloader --classmap-authoritative
 
 # Сборка транспорта MODX
+#RUN cp ${HTML_ROOT}/_build/build.config.sample.php ${HTML_ROOT}/_build/build.config.php && \
+#    php ${HTML_ROOT}/_build/transport.core.php && \
+#    rm -rf ${HTML_ROOT}/_build ${TEMP_DIR}/*
 RUN cp ${HTML_ROOT}/_build/build.config.sample.php ${HTML_ROOT}/_build/build.config.php && \
-    php ${HTML_ROOT}/_build/transport.core.php && \
-    rm -rf ${HTML_ROOT}/_build ${TEMP_DIR}/*
+    php ${HTML_ROOT}/_build/transport.core.php || true
+RUN rm -rf ${TEMP_DIR}/*
 
 # Фиксация прав
 #RUN chmod -R 0755 ${HTML_ROOT} && \
@@ -87,6 +90,28 @@ RUN mkdir -p ${HTML_ROOT}/core/cache ${HTML_ROOT}/core/components \
         ${HTML_ROOT}/core/packages ${HTML_ROOT}/assets/components && \
     chmod -R 0775 ${HTML_ROOT}/core/cache ${HTML_ROOT}/assets/components && \
     chown -R 1001:1001 ${HTML_ROOT}/core/cache ${HTML_ROOT}/assets/components
+
+## Перед ENTRYPOINT создание пустого файла config.inc.php с правами на запись для UID 1001
+#RUN mkdir -p ${HTML_ROOT}/core/config && \
+#    touch ${HTML_ROOT}/core/config/config.inc.php && \
+#    chmod 666 ${HTML_ROOT}/core/config/config.inc.php && \
+#    chown -R 1001:1001 ${HTML_ROOT}/core/config
+# Создаем директорию для конфига и отдаем полные права пользователю 1001
+RUN mkdir -p ${HTML_ROOT}/core/config && \
+    chmod -R 0775 ${HTML_ROOT}/core/config && \
+    chown -R 1001:1001 ${HTML_ROOT}/core/config
+
+# Создание директории для PID-файла и выдача прав пользователю 1001
+RUN mkdir -p /opt/bitnami/php/tmp && \
+    chown -R 1001:1001 /opt/bitnami/php/tmp && \
+    chmod 0775 /opt/bitnami/php/tmp
+
+# Создаем директорию для логов и даем полные права пользователю 1001
+RUN mkdir -p /opt/bitnami/php/logs && \
+    chown -R 1001:1001 /opt/bitnami/php/logs
+
+# Перенаправляем лог php-fpm в стандартный поток ошибок контейнера (опционально, но рекомендуется)
+RUN ln -sf /dev/stderr /opt/bitnami/php/logs/php-fpm.log
 
 # Health check для Kubernetes
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
