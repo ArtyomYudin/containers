@@ -61,6 +61,10 @@ info "  Param: cmsadminemail";
 install_config=$(echo $install_config | sed "s/<remove_setup_directory>1/<remove_setup_directory>$MODX_REMOVE_SETUP_DIRECTORY/g")
 info "  Param: remove_setup_directory";
 
+MODX_CORE_PATH=$(echo $MODX_CORE_PATH | sed "s/\//\\\\\//g")
+install_config=$(echo $install_config | sed "s/<core_path>\/www\/modx\/core\//<core_path>$MODX_CORE_PATH/g")
+info "  Param: core_path";
+
 MODX_CONTEXT_CONNECTORS_PATH=$(echo $MODX_CONTEXT_CONNECTORS_PATH | sed "s/\//\\\\\//g")
 install_config=$(echo $install_config | sed "s/<context_connectors_path>\/www\/modx\/connectors\//<context_connectors_path>$MODX_CONTEXT_CONNECTORS_PATH/g")
 info "  Param: context_connectors_path";

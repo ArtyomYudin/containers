@@ -50,8 +50,25 @@ RUN composer install --prefer-dist --no-dev --no-interaction --no-progress \
 #    php ${HTML_ROOT}/_build/transport.core.php && \
 #    rm -rf ${HTML_ROOT}/_build ${TEMP_DIR}/*
 RUN cp ${HTML_ROOT}/_build/build.config.sample.php ${HTML_ROOT}/_build/build.config.php && \
-    php ${HTML_ROOT}/_build/transport.core.php || true
+    cp $HTML_ROOT/_build/build.properties.sample.php $HTML_ROOT/_build/build.properties.php && \
+    php ${HTML_ROOT}/_build/transport.core.php
 RUN rm -rf ${TEMP_DIR}/*
+
+
+RUN cat > ${HTML_ROOT}/config.core.php <<'EOF'
+<?php
+
+if (!defined('MODX_CORE_PATH')) {
+    define('MODX_CORE_PATH', '/app/core/');
+}
+
+if (!defined('MODX_CONFIG_KEY')) {
+    define('MODX_CONFIG_KEY', 'config');
+}
+EOF
+RUN cp ${HTML_ROOT}/config.core.php ${HTML_ROOT}/manager/config.core.php && \
+    cp ${HTML_ROOT}/config.core.php ${HTML_ROOT}/connectors/config.core.php
+
 
 # Фиксация прав
 #RUN chmod -R 0755 ${HTML_ROOT} && \
@@ -88,8 +105,10 @@ COPY --from=builder /opt/keeper /opt/keeper/
 # Создание директорий для сессий и кэша с правильными правами
 RUN mkdir -p ${HTML_ROOT}/core/cache ${HTML_ROOT}/core/components \
         ${HTML_ROOT}/core/packages ${HTML_ROOT}/assets/components && \
-    chmod -R 0775 ${HTML_ROOT}/core/cache ${HTML_ROOT}/assets/components && \
-    chown -R 1001:1001 ${HTML_ROOT}/core/cache ${HTML_ROOT}/assets/components
+    chmod -R 0775 ${HTML_ROOT}/core/cache ${HTML_ROOT}/core/components \
+        ${HTML_ROOT}/assets/components ${HTML_ROOT}/core/packages && \
+    chown -R 1001:1001 ${HTML_ROOT}/core/cache ${HTML_ROOT}/core/components \
+        ${HTML_ROOT}/assets/components ${HTML_ROOT}/core/packages
 
 ## Перед ENTRYPOINT создание пустого файла config.inc.php с правами на запись для UID 1001
 #RUN mkdir -p ${HTML_ROOT}/core/config && \
@@ -110,8 +129,8 @@ RUN mkdir -p /opt/bitnami/php/tmp && \
 RUN mkdir -p /opt/bitnami/php/logs && \
     chown -R 1001:1001 /opt/bitnami/php/logs
 
-# Перенаправляем лог php-fpm в стандартный поток ошибок контейнера (опционально, но рекомендуется)
-RUN ln -sf /dev/stderr /opt/bitnami/php/logs/php-fpm.log
+## Перенаправляем лог php-fpm в стандартный поток ошибок контейнера (опционально, но рекомендуется)
+#RUN ln -sf /dev/stderr /opt/bitnami/php/logs/php-fpm.log
 
 # Health check для Kubernetes
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
