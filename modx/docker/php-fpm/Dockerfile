@@ -6,7 +6,7 @@ FROM hanna.center-inform.ru/bitnamilegacy/php-fpm:8.4.11 AS builder
 LABEL authors="Artyom Yudin"
 LABEL stage="builder"
 
-ENV MODX_VER=3.1.2 \
+ENV MODX_VER=3.2.1 \
     TEMP_DIR=/tmp \
     SRC_ROOT=/tmp/modx \
     HTML_ROOT=/app \
@@ -82,7 +82,7 @@ FROM hanna.center-inform.ru/bitnamilegacy/php-fpm:8.4.11 AS runtime
 
 LABEL authors="Artyom Yudin"
 LABEL stage="runtime"
-LABEL description="MODX Revolution 3.1.2 - Production Ready"
+LABEL description="MODX Revolution 3.2.1 - Production Ready"
 
 ENV HTML_ROOT=/app \
     MODX_DB_SERVER= \
