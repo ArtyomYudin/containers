@@ -1,0 +1,156 @@
+networks:
+  default:
+    external: true
+    name: it_support
+
+services:
+  mariadb:
+    image: hanna.center-inform.ru/bitnamilegacy/mariadb:12.0.2
+    container_name: modx-mariadb
+    restart: unless-stopped
+    ports:
+      - "13306:3306"
+    #user: "1001:1001"
+#    cap_drop:
+#      - ALL
+#    security_opt:
+#      - no-new-privileges:true
+    # Подключаем файл окружения напрямую, без интерполяции Compose
+    env_file:
+      - .env.modx
+    volumes:
+      - mariadb_data:/bitnami/mariadb
+    healthcheck:
+      # $$ экранирует $ для Compose, чтобы переменная вычислилась внутри контейнера
+      test: [ "CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u root -p\"$$MARIADB_ROOT_PASSWORD\" || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 300s
+
+  nginx:
+    image: hanna.center-inform.ru/modx/nginx:3.2.1-r3
+    container_name: modx-nginx
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    #user: "1001:1001"
+#    cap_drop:
+#      - ALL
+#    security_opt:
+#      - no-new-privileges:true
+    volumes:
+      - ./config/masterutm.conf:/opt/bitnami/nginx/conf/server_blocks/masterutm.conf:ro
+      - ./data/assets:/app/assets:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  php-fpm:
+    image: hanna.center-inform.ru/modx/modx:3.2.1-r3
+    container_name: modx-php-fpm
+    restart: unless-stopped
+#    #user: "1001:1001"
+#    cap_drop:
+#      - ALL
+#    security_opt:
+#      - no-new-privileges:true
+    volumes:
+      - ./data/assets:/app/assets
+      - ./data/cache:/app/core/cache
+      - ./data/config:/app/core/config       # <--- Bind-mount вместо тома
+      - ./data/components:/app/core/components
+    env_file:
+      - .env.modx
+    environment:
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_DISPLAY_ERRORS=On
+      - PHP_ERROR_REPORTING=E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED
+    healthcheck:
+      test: ["CMD-SHELL", "php -r \"exit(file_exists('/app/index.php') ? 0 : 1);\""]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    stop_grace_period: 20s
+    # ВАЖНО: Ждем, пока mariadb пройдет healthcheck, прежде чем запускать php-fpm
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      modx-installer:
+        condition: service_completed_successfully
+
+
+  modx-installer:
+    image: hanna.center-inform.ru/modx/modx:3.1.2-r8  # Используем тот же образ установщика из K8s Job
+    container_name: modx-installer
+    # Заставляем контейнер выключиться после успешного выполнения
+    restart: "no"
+    volumes:
+      - ./data/assets:/app/assets
+      - ./data/cache:/app/core/cache
+      - ./data/config:/app/core/config       # <--- Bind-mount вместо тома
+      - ./data/components:/app/core/components
+    env_file:
+      - .env.modx
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    # Переносим логику bash-скрипта из K8s
+    entrypoint: [ "/bin/bash", "-c" ]
+    command:
+      - |
+        set -e
+        echo "Waiting MySQL..."
+        until php -r '
+        try {
+          new PDO(
+            "mysql:host=".getenv("MODX_DB_SERVER"),
+            getenv("MARIADB_USER"),
+            getenv("MARIADB_PASSWORD")
+          );
+          exit(0);
+        } catch(Exception $e) {
+          exit(1);
+        }
+        '; do
+          sleep 5
+        done
+        echo "MySQL ready"
+
+        EXISTS=$$(php -r '
+        try {
+          $$pdo = new PDO(
+            "mysql:host=".getenv("MODX_DB_SERVER").";dbname=".getenv("MARIADB_DATABASE"),
+            getenv("MARIADB_USER"),
+            getenv("MARIADB_PASSWORD")
+          );
+          $$stmt = $$pdo->query(
+            "SHOW TABLES LIKE '\''modx_system_settings'\''"
+          );
+          echo $$stmt->rowCount();
+        } catch(Exception $e) {
+          echo 0;
+        }
+        ')
+
+        if [ "$$EXISTS" != "0" ]; then
+          echo "MODX already installed"
+          exit 0
+        fi
+
+        echo "Installing MODX..."
+        bash /opt/keeper/scripts/modx-cli-install.sh
+
+
+# Именованный том для данных MariaDB (аналог PersistentVolumeClaim)
+volumes:
+  mariadb_data:
+#  modx_assets:
+#  modx_cache:
+#  modx_config:
+#  modx_components:
+    # При необходимости можно задать драйвер или параметры, но по умолчанию Docker все сделает сам

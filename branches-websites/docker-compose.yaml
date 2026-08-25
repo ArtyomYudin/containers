@@ -1,0 +1,186 @@
+networks:
+  default:
+    external: true
+    name: it_support
+
+services:
+  r23-nginx:
+    image: hanna.center-inform.ru/bitnamilegacy/nginx:1.29.1
+#    user: "1001:1001" # Bitnami требует запуска от этого пользователя
+    ports:
+      - "8023:8080" # Хост:Контейнер. Можно изменить на "80:8080", если порт 8080 не нужен снаружи
+    volumes:
+      - ./nginx/r23-site.conf:/opt/bitnami/nginx/conf/server_blocks/site.conf:ro
+      - r23-storage:/app:ro
+    depends_on:
+      r23-php-fpm:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    stop_grace_period: 15s # Аналог preStop sleep 10s
+    restart: unless-stopped
+
+  r23-php-fpm:
+    image: hanna.center-inform.ru/php-fpm/php-fpm:5.3.29
+#    user: "1001:1001"
+    volumes:
+      - r23-storage:/app
+    environment:
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_DISPLAY_ERRORS=Off
+      - PHP_ERROR_REPORTING=E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED
+    healthcheck:
+      test: ["CMD-SHELL", "php -r \"exit(file_exists('/app/index.php') ? 0 : 1);\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    stop_grace_period: 15s
+    restart: unless-stopped
+
+  r31-nginx:
+    image: hanna.center-inform.ru/bitnamilegacy/nginx:1.29.1
+#    user: "1001:1001" # Bitnami требует запуска от этого пользователя
+    ports:
+      - "8031:8080" # Хост:Контейнер. Можно изменить на "80:8080", если порт 8080 не нужен снаружи
+    volumes:
+      - ./nginx/r31-site.conf:/opt/bitnami/nginx/conf/server_blocks/site.conf:ro
+      - r31-storage:/app:ro
+    depends_on:
+      r31-php-fpm:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    stop_grace_period: 15s # Аналог preStop sleep 10s
+    restart: unless-stopped
+
+  r31-php-fpm:
+    image: hanna.center-inform.ru/php-fpm/php-fpm:5.3.29
+#    user: "1001:1001"
+    volumes:
+      - r31-storage:/app
+    environment:
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_DISPLAY_ERRORS=Off
+      - PHP_ERROR_REPORTING=E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED
+    healthcheck:
+      test: ["CMD-SHELL", "php -r \"exit(file_exists('/app/index.php') ? 0 : 1);\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    stop_grace_period: 15s
+    restart: unless-stopped
+
+  r39-nginx:
+    image: hanna.center-inform.ru/bitnamilegacy/nginx:1.29.1
+    #    user: "1001:1001" # Bitnami требует запуска от этого пользователя
+    ports:
+      - "8039:8080" # Хост:Контейнер. Можно изменить на "80:8080", если порт 8080 не нужен снаружи
+    volumes:
+      - ./nginx/r39-site.conf:/opt/bitnami/nginx/conf/server_blocks/site.conf:ro
+      - r39-storage:/app:ro
+    depends_on:
+      r39-php-fpm:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://127.0.0.1:8080/health" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    stop_grace_period: 15s # Аналог preStop sleep 10s
+    restart: unless-stopped
+
+  r39-php-fpm:
+    image: hanna.center-inform.ru/php-fpm/php-fpm:5.3.29
+    #    user: "1001:1001"
+    volumes:
+      - r39-storage:/app
+    environment:
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_DISPLAY_ERRORS=Off
+      - PHP_ERROR_REPORTING=E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED
+    healthcheck:
+      test: [ "CMD-SHELL", "php -r \"exit(file_exists('/app/index.php') ? 0 : 1);\"" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    stop_grace_period: 15s
+    restart: unless-stopped
+
+
+  r48-nginx:
+    image: hanna.center-inform.ru/bitnamilegacy/nginx:1.29.1
+    #    user: "1001:1001" # Bitnami требует запуска от этого пользователя
+    ports:
+      - "8048:8080" # Хост:Контейнер. Можно изменить на "80:8080", если порт 8080 не нужен снаружи
+    volumes:
+      - ./nginx/r48-site.conf:/opt/bitnami/nginx/conf/server_blocks/site.conf:ro
+      - r48-storage:/app:ro
+    depends_on:
+      r48-php-fpm:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://127.0.0.1:8080/health" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    stop_grace_period: 15s # Аналог preStop sleep 10s
+    restart: unless-stopped
+
+  r48-php-fpm:
+    image: hanna.center-inform.ru/php-fpm/php-fpm:5.3.29
+    #    user: "1001:1001"
+    volumes:
+      - r48-storage:/app
+    environment:
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_DISPLAY_ERRORS=Off
+      - PHP_ERROR_REPORTING=E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED
+    healthcheck:
+      test: [ "CMD-SHELL", "php -r \"exit(file_exists('/app/index.php') ? 0 : 1);\"" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    stop_grace_period: 15s
+    restart: unless-stopped
+
+
+
+  mariadb:
+    image: hanna.center-inform.ru/bitnamilegacy/mariadb:12.0.2
+#    user: "1001:1001"
+#    ports:
+#      - "3306:3306" # Уберите эту строку, если БД не должна быть доступна с хост-машины
+    volumes:
+      - mariadb-data:/bitnami/mariadb
+    environment:
+      - MARIADB_ROOT_PASSWORD=sLZ8dWsoVQsI
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -u root -p$${MARIADB_ROOT_PASSWORD} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+
+volumes:
+  r23-storage:
+  r31-storage:
+  r39-storage:
+  r48-storage:
+    # Если нужно сохранить данные при удалении volume, Docker делает это по умолчанию.
+    # Для переноса данных из Kubernetes см. инструкцию ниже.
+  mariadb-data:
