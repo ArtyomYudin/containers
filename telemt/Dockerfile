@@ -1,5 +1,5 @@
 ARG TELEMT_REPOSITORY=telemt/telemt
-ARG TELEMT_VERSION=latest
+ARG TELEMT_VERSION=3.4.19
 
 # ==========================
 # Minimal Image
