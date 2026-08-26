@@ -1,0 +1,4 @@
+auth    required    pam_plain.so userfile=/etc/vsftpd/vsftpd_users.conf
+account required    pam_permit.so
+
+

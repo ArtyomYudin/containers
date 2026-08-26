@@ -1,13 +1,18 @@
-FROM alpine:3.20
+FROM alpine:latest
 
-# Устанавливаем pure-ftpd и openssl для генерации паролей
-RUN apk add --no-cache pure-ftpd openssl && \
-    # Создаем необходимые папки для конфигов, доступные пользователю 1001
-    mkdir -p /tmp/pureftpd /tmp/etc && \
-    chown -R 1001:1001 /tmp
+# Устанавливаем pure-ftpd, shadow (для управления шеллами) и bash
+RUN apk add --no-cache pure-ftpd shadow bash
 
-# Переключаемся на пользователя 1001 (требование Tanzu)
+# Создаем rootless пользователя (UID 1001) с валидным шеллом /bin/bash
+RUN addgroup -g 1001 tanzuuser && \
+    adduser -u 1001 -G tanzuuser -h /home/tanzuuser -s /bin/bash -D tanzuuser
+
+# Создаем директории и выставляем права
+RUN mkdir -p /etc/pure-ftpd /data && \
+    chown -R tanzuuser:tanzuuser /etc/pure-ftpd /data
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh && chown tanzuuser:tanzuuser /entrypoint.sh
+
 USER 1001
-
-# Открываем порт управления (2121) и пассивные порты для передачи данных (30000-30005)
-EXPOSE 2121 30000 30001 30002 30003 30004 30005
+ENTRYPOINT ["/entrypoint.sh"]
